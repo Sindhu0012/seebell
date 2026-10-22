@@ -13,8 +13,10 @@ export interface Analysis {
 export interface RingEvent {
   id: string
   time: string
-  scenario: Scenario
+  scenario: Scenario | 'photo'
   analysis: Analysis
+  source: 'gemini' | 'mock'
+  image: string | null
   action: ActionId | null
   actionTime: string | null
 }

@@ -11,10 +11,51 @@ const SCENARIOS: { id: Scenario; label: string }[] = [
 
 const RISK_LABEL = { low: 'LOW RISK', medium: 'MEDIUM RISK', high: 'HIGH RISK' }
 
+interface Summary {
+  stats: {
+    total: number
+    delivery: number
+    neighbor: number
+    stranger: number
+    unknown: number
+    highRisk: number
+    replied: number
+  }
+  text: string
+  source: 'gemini' | 'mock'
+}
+
+function resizeToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      const scale = Math.min(1, 640 / Math.max(img.width, img.height))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * scale)
+      canvas.height = Math.round(img.height * scale)
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        reject(new Error('Canvas not supported'))
+        return
+      }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      URL.revokeObjectURL(url)
+      resolve(canvas.toDataURL('image/jpeg', 0.7))
+    }
+    img.onerror = () => reject(new Error('Could not read image'))
+    img.src = url
+  })
+}
+
 export default function SeeBellPage() {
   const [current, setCurrent] = useState<RingEvent | null>(null)
   const [log, setLog] = useState<RingEvent[]>([])
+  const [busy, setBusy] = useState(false)
+  const [summary, setSummary] = useState<Summary | null>(null)
+  const [summaryBusy, setSummaryBusy] = useState(false)
   const lastId = useRef<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const refresh = useCallback(async () => {
     try {
@@ -52,6 +93,22 @@ export default function SeeBellPage() {
     refresh()
   }
 
+  async function ringWithPhoto(file: File) {
+    setBusy(true)
+    try {
+      const image = await resizeToDataUrl(file)
+      await fetch('/api/simulate-ring', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image }),
+      })
+      await refresh()
+    } finally {
+      setBusy(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
   async function choose(action: ActionId) {
     await fetch('/api/action', {
       method: 'POST',
@@ -59,6 +116,18 @@ export default function SeeBellPage() {
       body: JSON.stringify({ action }),
     })
     refresh()
+  }
+
+  async function makeSummary() {
+    setSummaryBusy(true)
+    try {
+      const res = await fetch('/api/summary', { cache: 'no-store' })
+      setSummary(await res.json())
+    } catch {
+      // ignore, the button can be pressed again
+    } finally {
+      setSummaryBusy(false)
+    }
   }
 
   const alerting = current !== null && current.action === null
@@ -91,6 +160,23 @@ export default function SeeBellPage() {
               Simulate: {s.label}
             </button>
           ))}
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={busy}
+            className="rounded-xl bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-5 py-3 disabled:opacity-60"
+          >
+            {busy ? 'AI is looking...' : 'Ring with a photo (real AI)'}
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) ringWithPhoto(file)
+            }}
+          />
           <a
             href="/door"
             target="_blank"
@@ -110,20 +196,76 @@ export default function SeeBellPage() {
         </section>
       )}
 
+      <section className="max-w-3xl mx-auto mb-8 rounded-2xl border border-slate-700 p-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="text-xl font-bold">Daily summary</h2>
+          <button
+            onClick={makeSummary}
+            disabled={summaryBusy}
+            className="rounded-xl bg-violet-400 hover:bg-violet-300 text-black font-bold px-5 py-2 disabled:opacity-60"
+          >
+            {summaryBusy ? 'Writing...' : 'Summarize today'}
+          </button>
+        </div>
+        {summary ? (
+          <div className="mt-4">
+            <p className="text-lg">{summary.text}</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-sm">
+              <span className="rounded-full bg-slate-800 px-3 py-1">
+                {summary.stats.total} visitors
+              </span>
+              <span className="rounded-full bg-slate-800 px-3 py-1">
+                {summary.stats.delivery} delivery
+              </span>
+              <span className="rounded-full bg-slate-800 px-3 py-1">
+                {summary.stats.neighbor} neighbor
+              </span>
+              <span className="rounded-full bg-slate-800 px-3 py-1">
+                {summary.stats.stranger} stranger
+              </span>
+              <span className="rounded-full bg-red-900 px-3 py-1">
+                {summary.stats.highRisk} high risk
+              </span>
+              <span className="rounded-full bg-slate-800 px-3 py-1">
+                {summary.stats.replied} replied
+              </span>
+            </div>
+            <p className="text-slate-400 text-sm mt-2">
+              {summary.source === 'gemini' ? 'Written by AI: Gemini' : 'Demo mode summary'}
+            </p>
+          </div>
+        ) : (
+          <p className="text-slate-400 mt-2">Press the button to summarize today&apos;s visitors.</p>
+        )}
+      </section>
+
       <section className="max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold mb-3">Visitor log</h2>
         {log.length === 0 && <p className="text-slate-400">No visitors yet.</p>}
         <ul className="space-y-3">
           {log.map((e) => (
-            <li key={e.id} className="rounded-xl border border-slate-700 p-4">
-              <div className="flex justify-between text-slate-400 text-sm">
-                <span>{new Date(e.time).toLocaleTimeString()}</span>
-                <span>{RISK_LABEL[e.analysis.risk]}</span>
+            <li key={e.id} className="rounded-xl border border-slate-700 p-4 flex gap-4">
+              {e.image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={e.image}
+                  alt="Camera snapshot of the visitor"
+                  className="h-20 w-28 rounded-lg object-cover"
+                />
+              )}
+              <div className="flex-1">
+                <div className="flex justify-between text-slate-400 text-sm">
+                  <span>
+                    {new Date(e.time).toLocaleTimeString()} ·{' '}
+                    {e.source === 'gemini' ? 'AI: Gemini' : 'demo mode'}
+                  </span>
+                  <span>{RISK_LABEL[e.analysis.risk]}</span>
+                </div>
+                <p className="text-lg font-semibold mt-1">{e.analysis.description}</p>
+                <p className="text-slate-300">
+                  Your reply: {e.action ? ACTIONS[e.action].label : 'no reply yet'}
+                </p>
               </div>
-              <p className="text-lg font-semibold mt-1">{e.analysis.description}</p>
-              <p className="text-slate-300">
-                Your reply: {e.action ? ACTIONS[e.action].label : 'no reply yet'}
-              </p>
             </li>
           ))}
         </ul>
@@ -134,7 +276,7 @@ export default function SeeBellPage() {
           role="alertdialog"
           aria-live="assertive"
           aria-label="Someone is at the door"
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 p-6 text-center text-white"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 p-6 text-center text-white"
           style={{
             animation: `${
               current.analysis.risk === 'high'
@@ -146,6 +288,14 @@ export default function SeeBellPage() {
           }}
         >
           <p className="text-6xl md:text-8xl font-extrabold">SOMEONE IS AT THE DOOR</p>
+          {current.image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={current.image}
+              alt="Camera snapshot of the visitor"
+              className="h-40 rounded-xl border-4 border-white object-cover"
+            />
+          )}
           <p className="text-3xl md:text-5xl font-bold max-w-4xl">
             {current.analysis.description}
           </p>

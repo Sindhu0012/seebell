@@ -1,28 +1,45 @@
 import { NextResponse } from 'next/server'
-import { getStore, isScenario, MOCK_ANALYSES, RingEvent, Scenario } from '@/lib/seebell'
+import { analyzeImage } from '@/lib/gemini'
+import { getStore, isScenario, MOCK_ANALYSES, RingEvent } from '@/lib/seebell'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
-  let scenario: Scenario = 'delivery'
-  try {
-    const body = await request.json()
-    if (isScenario(body?.scenario)) scenario = body.scenario
-  } catch {
-    // no body sent, use the default scenario
-  }
+  const body = await request.json().catch(() => ({}))
+  const image: string | null =
+    typeof body?.image === 'string' && body.image.startsWith('data:image/') ? body.image : null
 
-  const event: RingEvent = {
-    id: Date.now().toString(),
-    time: new Date().toISOString(),
-    scenario,
-    analysis: MOCK_ANALYSES[scenario],
-    action: null,
-    actionTime: null,
+  let event: RingEvent
+
+  if (image) {
+    const result = await analyzeImage(image)
+    event = {
+      id: Date.now().toString(),
+      time: new Date().toISOString(),
+      scenario: 'photo',
+      analysis: result.analysis,
+      source: result.source,
+      image,
+      action: null,
+      actionTime: null,
+    }
+  } else {
+    const scenario = isScenario(body?.scenario) ? body.scenario : 'delivery'
+    event = {
+      id: Date.now().toString(),
+      time: new Date().toISOString(),
+      scenario,
+      analysis: MOCK_ANALYSES[scenario],
+      source: 'mock',
+      image: null,
+      action: null,
+      actionTime: null,
+    }
   }
 
   const store = getStore()
   store.current = event
   store.log.unshift(event)
-  return NextResponse.json(event)
+  store.log = store.log.slice(0, 20)
+  return NextResponse.json({ id: event.id, source: event.source })
 }
