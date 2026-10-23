@@ -1,6 +1,3 @@
-cd ~/seebell
-
-cat > README.md << 'EOF'
 # SeeBell: a doorbell you can see
 
 SeeBell makes the front door accessible for deaf and hard-of-hearing people. When someone rings, the whole screen flashes, the text is huge, the phone vibrates, and an AI tells you who is outside and how risky it looks. You reply with one tap, and the visitor reads your answer in big text on a door display.
@@ -146,18 +143,3 @@ Never commit `.env.local`. It is already in `.gitignore`.
 - Ring events are simulated.
 - The visitor log is in memory and resets when the server restarts.
 - Live camera frames are not sent to the AI yet; the starter has a video stream but no snapshot endpoint.
-
-## License
-
-MIT. See [LICENSE](LICENSE). Built on Amazon's MIT-licensed `ring-api-helloworld` starter.
-EOF
-
-for f in alert-ai door home log-summary; do
-  if [ -f "docs/screenshots/$f.png" ]; then echo "ok: $f.png"; else echo "MISSING: $f.png"; fi
-done
-
-git add .
-git status --short | grep env
-git commit -m "Simplify README, add screenshots"
-git push
-git ls-files docs/screenshots
