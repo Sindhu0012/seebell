@@ -16,28 +16,32 @@ Doorbell press (simulated) -> camera photo -> Gemini AI describes the visitor ->
 
 The screen flashes green, amber or red by risk level, with huge text, phone vibration, a snapshot, the AI description, and a suggested reply highlighted.
 
-![SeeBell alert with AI description](<img width="1362" height="673" alt="sindhu" src="https://github.com/user-attachments/assets/01a642b5-8f4d-4444-953c-f78a560f13d5" />
+![SeeBell alert with AI description](<img width="1362" height="673" alt="alert-screen" src="https://github.com/user-attachments/assets/3d1f366f-23a0-4464-9cdb-ba1edc3a7721" />
+
 )
 
 ### 2. Door display: the visitor reads your reply
 
 After you tap Coming, Leave at door or Not now, the `/door` page shows your answer in big, high-contrast text.
 
-![Door display](<img width="1364" height="681" alt="Screenshot From 2026-10-23 10-17-31" src="https://github.com/user-attachments/assets/6b3386ce-9587-423e-a075-2b95ef52f4b8" />
+![Door display](<img width="1364" height="681" alt="door-display" src="https://github.com/user-attachments/assets/99521ef5-2df6-49b5-aab4-aeeb5de9628b" />
+
 )
 
 ### 3. Home: demo controls and Ring camera check
 
 Simulate a visitor, ring with a real photo to run the AI, check the Ring camera through the Ring API, and open the door display.
 
-![SeeBell home](<img width="1364" height="681" alt="Screenshot From 2026-10-23 10-16-54" src="https://github.com/user-attachments/assets/3be700cd-3a45-4b3c-903f-bca6c8349d40" />
+![SeeBell home](<img width="1364" height="681" alt="home-screen" src="https://github.com/user-attachments/assets/36057bd2-505a-44f1-9a2a-ead0d5dbe405" />
+
 )
 
 ### 4. Visitor log and daily summary
 
 Every visit is logged with its snapshot, the AI description, the risk level and your reply. The daily summary counts the day's visitors in code, then Gemini writes a short summary.
 
-![Visitor log and daily summary](<img width="1357" height="673" alt="sindhu 2" src="https://github.com/user-attachments/assets/f560e423-130a-45c6-98e6-e360fd462786" />
+![Visitor log and daily summary](<img width="1357" height="673" alt="visitor-log" src="https://github.com/user-attachments/assets/6c1f1143-caab-439d-9662-045eac66f894" />
+
 )
 
 ## Features
