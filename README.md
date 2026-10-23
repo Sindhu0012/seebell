@@ -16,7 +16,7 @@ Doorbell press (simulated) -> camera photo -> Gemini AI describes the visitor ->
 
 The screen flashes green, amber or red by risk level, with huge text, phone vibration, a snapshot, the AI description, and a suggested reply highlighted.
 
-![SeeBell alert with AI description]<img width="1362" height="673" alt="alert-screen" src="https://github.com/user-attachments/assets/3d1f366f-23a0-4464-9cdb-ba1edc3a7721" />
+[SeeBell alert with AI description]<img width="1362" height="673" alt="alert-screen" src="https://github.com/user-attachments/assets/3d1f366f-23a0-4464-9cdb-ba1edc3a7721" />
 
 
 
@@ -24,7 +24,7 @@ The screen flashes green, amber or red by risk level, with huge text, phone vibr
 
 After you tap Coming, Leave at door or Not now, the `/door` page shows your answer in big, high-contrast text.
 
-![Door display]<img width="1364" height="681" alt="door-display" src="https://github.com/user-attachments/assets/99521ef5-2df6-49b5-aab4-aeeb5de9628b" />
+[Door display]<img width="1364" height="681" alt="door-display" src="https://github.com/user-attachments/assets/99521ef5-2df6-49b5-aab4-aeeb5de9628b" />
 
 
 
@@ -32,7 +32,7 @@ After you tap Coming, Leave at door or Not now, the `/door` page shows your answ
 
 Simulate a visitor, ring with a real photo to run the AI, check the Ring camera through the Ring API, and open the door display.
 
-![SeeBell home]<img width="1364" height="681" alt="home-screen" src="https://github.com/user-attachments/assets/36057bd2-505a-44f1-9a2a-ead0d5dbe405" />
+[SeeBell home]<img width="1364" height="681" alt="home-screen" src="https://github.com/user-attachments/assets/36057bd2-505a-44f1-9a2a-ead0d5dbe405" />
 
 
 
@@ -40,7 +40,7 @@ Simulate a visitor, ring with a real photo to run the AI, check the Ring camera 
 
 Every visit is logged with its snapshot, the AI description, the risk level and your reply. The daily summary counts the day's visitors in code, then Gemini writes a short summary.
 
-![Visitor log and daily summary]<img width="1357" height="673" alt="visitor-log" src="https://github.com/user-attachments/assets/6c1f1143-caab-439d-9662-045eac66f894" />
+[Visitor log and daily summary]<img width="1357" height="673" alt="visitor-log" src="https://github.com/user-attachments/assets/6c1f1143-caab-439d-9662-045eac66f894" />
 
 
 
