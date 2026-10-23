@@ -147,3 +147,7 @@ Never commit `.env.local`. It is already in `.gitignore`.
 - Ring events are simulated.
 - The visitor log is in memory and resets when the server restarts.
 - Live camera frames are not sent to the AI yet; the starter has a video stream but no snapshot endpoint.
+
+## License
+
+MIT. See [LICENSE](LICENSE). Built on Amazon's MIT-licensed `ring-api-helloworld` starter.
