@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ACTIONS, ActionId, RingEvent, Scenario } from '@/lib/seebell'
+import RingPanel from '@/components/RingPanel'
 
 const SCENARIOS: { id: Scenario; label: string }[] = [
   { id: 'delivery', label: 'Delivery person' },
@@ -144,6 +145,8 @@ export default function SeeBellPage() {
         <h1 className="text-4xl font-extrabold">SeeBell</h1>
         <p className="text-slate-300 text-lg">A doorbell you can see.</p>
       </header>
+
+      <RingPanel />
 
       <section className="max-w-3xl mx-auto mb-8 rounded-2xl border border-slate-700 p-5">
         <h2 className="text-xl font-bold mb-1">Demo controls</h2>
